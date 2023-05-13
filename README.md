@@ -13,7 +13,7 @@ To get started with this project, you will need to do the following:
 - Run the database seeder using the php artisan db:seed command to add fake data to the database.
 - Start the server using the php artisan serve command.
 
-##APIs
+## APIs
 
 This application has two APIs:
 
