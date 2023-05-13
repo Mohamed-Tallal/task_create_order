@@ -20,7 +20,6 @@ class OrderController extends Controller
         $productIds = $products->pluck('product_id');
         $productsData = Product::whereIn('id', $productIds)->with('ingredients')->get();
         $returnData = $this->createOrder($products, $productsData);
-
         if( $returnData['status'] == true){
             return $this->succesWithoutData($returnData['msg']);
         }
@@ -46,7 +45,7 @@ class OrderController extends Controller
             // create order
 
             $order = Order::create([
-                'user_id' => 1,
+                'user_id' => auth()->id(),
                 'total_price' =>  $this->calculateTotalPrice($products , $productsData ),
             ]);
 
@@ -70,6 +69,7 @@ class OrderController extends Controller
                     if ($stock >= $quantityToConsume) {
                         $ingredient->decrement('stock', $quantityToConsume);
                     } else {
+
                         return [
                             'status' => true ,
                             'msg'    => 'Insufficient stock for ingredient ' . $ingredient->name,
@@ -86,7 +86,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return [
-                'status' => true ,
+                'status' => false ,
                 'msg'    => 'There was an error while creating the Order. Please try again.',
             ];
         }

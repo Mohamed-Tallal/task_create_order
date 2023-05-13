@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckAuthMiddleware
@@ -16,7 +17,7 @@ class CheckAuthMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(! auth()->guard()->check()){
+        if(! auth()->check()){
             return response()->json([
                 'status' => false,
                 'message' => 'Unauthorized',

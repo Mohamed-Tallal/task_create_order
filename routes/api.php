@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [LoginController::class , 'login']);
 
-Route::middleware('checkAuth')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/orders', OrderController::class);
 });
 
