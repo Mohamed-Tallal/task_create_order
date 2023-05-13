@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Api\ApiRequest;
 
-class OrderRequest extends ApiRequest
+class LoginRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,8 @@ class OrderRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|integer|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required',
         ];
     }
 }

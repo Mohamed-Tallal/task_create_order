@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Models\Product;
 use App\Models\Ingredient;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class CreatOrderTest extends TestCase
@@ -14,6 +15,7 @@ class CreatOrderTest extends TestCase
 
     public function testOrderIsStoredAndTotalPriceIsCorrect()
     {
+        $user = User::factory()->create();
         $ingredient1 = Ingredient::factory()->create(['stock' => 100]);
         $ingredient2 = Ingredient::factory()->create(['stock' => 200]);
 
@@ -36,7 +38,7 @@ class CreatOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/api/orders', $payload);
+        $response = $this->actingAs($user)->postJson('/api/orders', $payload);
 
         $response->assertStatus(200);
         $order = Order::latest()->first();
@@ -50,6 +52,7 @@ class CreatOrderTest extends TestCase
 
     public function testOrderIsStoredAndUpdateStock()
     {
+        $user = User::factory()->create();
         $ingredient1 = Ingredient::factory()->create(['stock' => 100]);
         $ingredient2 = Ingredient::factory()->create(['stock' => 200]);
         $product1 = Product::factory()->create();
@@ -74,7 +77,7 @@ class CreatOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/api/orders', $payload);
+        $response = $this->actingAs($user)->postJson('/api/orders', $payload);
         $response->assertStatus(200);
 
         foreach ($payload['products'] as $index => $item) {
@@ -93,6 +96,7 @@ class CreatOrderTest extends TestCase
 
     public function testStockSmallerThanOrEqualMinimumStockSendMail()
     {
+        $user = User::factory()->create();
         $product = Product::factory()->create();
         $ingredient = Ingredient::factory()->create(['stock' => 4]);
         $product->ingredients()->attach($ingredient, ['quantity' => 2000]);
@@ -105,7 +109,7 @@ class CreatOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/api/orders', $payload);
+        $response = $this->actingAs($user)->postJson('/api/orders', $payload);
         $response->assertStatus(200);
 
         $ingredient = Ingredient::latest()->first();
@@ -120,6 +124,7 @@ class CreatOrderTest extends TestCase
         $product = Product::factory()->create();
         $ingredient = Ingredient::factory()->create(['stock' => 0]);
         $product->ingredients()->attach($ingredient, ['quantity' => 100]);
+        $user = User::factory()->create();
 
         $payload = [
             'products' => [
@@ -130,10 +135,10 @@ class CreatOrderTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/api/orders', $payload);
+        $response = $this->actingAs($user)->postJson('/api/orders', $payload);
 
-        $response->assertStatus(404);
-        $response->assertJson(['message' => 'There was an error while creating the Order. Please try again.']);
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'Insufficient stock for ingredient '. $ingredient->name]);
         $this->assertEquals(0, $ingredient->fresh()->stock);
     }
 }

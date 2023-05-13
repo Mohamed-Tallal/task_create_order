@@ -50,4 +50,13 @@ trait ShowDataTrait
         ],404);
     }
 
+    public function customError($status , $msg)
+    :JsonResponse
+    {
+        return response()->json([
+            'statues' => false,
+            'code' => $status,
+            'message' => $msg,
+        ],$status);
+    }
 }
